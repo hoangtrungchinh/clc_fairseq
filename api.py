@@ -1,27 +1,20 @@
-# MODEL_DIR=wmt14.en-fr.fconv-py
-# fairseq-interactive \
-#     --path $MODEL_DIR/model.pt $MODEL_DIR \
-#     --beam 5 --source-lang en --target-lang fr \
-#     --tokenizer moses \
-#     --bpe subword_nmt \
-#     --bpe-codes $MODEL_DIR/bpecodes
-# ==>
-# hydra.errors.MissingConfigException: Primary config directory not found.
-# Check that the config directory '/home/chinh/fairseq/fairseq/config' exists and readable
+# HOW TO USE
+# python3 api.py
+# or
+# export FLASK_RUN_PORT=6000
+# set FLASK_APP=api
+# flask run
 
-
-
-
-
-# ==>
-# raise MissingConfigException(
-# hydra.errors.MissingConfigException: Primary config directory not found.
+# http://127.0.0.1:6000/clc_fairseq
+# {
+#     "src_str":"I went to the cinema"
+# }
 
 import flask
 from flask import request, jsonify
 import time
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+# app.config["DEBUG"] = True
 
 
 import fastBPE
@@ -41,17 +34,4 @@ def translate():
   res =  model.translate(src_str)
   return jsonify({'time': time.time() - start_time, 'res': res}), 200
 
-
-
 app.run()
-
-
-
-
-
-# fairseq-generate wmt14.en-fr.fconv-py \
-#     --path model.pt \
-#     --batch-size 128 --beam 5
-# ==>
-# hydra.errors.MissingConfigException: Primary config directory not found.
-# Check that the config directory '/home/chinh/fairseq/fairseq/config' exists and readable
