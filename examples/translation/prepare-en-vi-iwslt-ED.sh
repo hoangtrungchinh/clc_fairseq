@@ -43,7 +43,7 @@ mkdir $lang
 tar -xvf $GZ -C $lang
 cd ..
 
-python examples/translation/script_ed.py -i $orig/$lang/train.$src -o $orig/$lang/train2.$src
+python clc_fairseq/examples/translation/script_ed.py -i $orig/$lang/train.$src -o $orig/$lang/train2.$src
 mv $orig/$lang/train.$src  $orig/$lang/train.$src.bak
 mv $orig/$lang/train2.$src $orig/$lang/train.$src
 
