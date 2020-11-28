@@ -15,14 +15,14 @@ CLEAN=$SCRIPTS/training/clean-corpus-n.perl
 BPEROOT=subword-nmt/subword_nmt
 BPE_TOKENS=10000
 
-URL=https://github.com/hoangtrungchinh/clc_data/raw/master/en-vi-30k.zip
-GZ=en-vi-30k.zip
+URL=https://github.com/hoangtrungchinh/clc_data/raw/master/en-vi-1M.zip
+GZ=en-vi-1M.zip
 
 src=en
 tgt=vi
-lang=en-vi
+lang=en-vi-1M
 
-prefix=30k-en-vi-
+prefix=v3-1M/en-vi-
 prep=${prefix}tokenized
 orig=${prefix}orig
 tmp=$prep/tmp
@@ -42,11 +42,12 @@ fi
 
 unzip $GZ
 cd ..
+cd ..
 
 
 echo "pre-processing train data..."
 for l in $src $tgt; do
-    f=train.tags.$lang.$l
+    f=train.$l
     tok=train.tags.$lang.tok.$l
 
     cat $orig/$lang/$f | \
@@ -69,8 +70,9 @@ done
 perl $CLEAN -ratio 1.5 $tmp/train.tags.$lang.tok $src $tgt $tmp/train.tags.$lang.clean 1 175
 # ==>
 # ==> create 2 file: "train.tags.en-vi.clean.vi" and "train.tags.en-vi.clean.en"
-# clean-corpus.perl: processing tokenized.en-vi/tmp/train.tags.en-vi.tok.en & .vi to tokenized.en-vi/tmp/train.tags.en-vi.clean, cutoff 1-175, ratio 1.5
-# Input sentences: 28854  Output sentences:  23800
+# clean-corpus.perl: processing v3-1M/en-vi-tokenized/tmp/train.tags.en-vi-1M.tok.en & .vi to v3-1M/en-vi-tokenized/tmp/train.tags.en-vi-1M.clean, cutoff 1-175, ratio 1.5
+# ..........(100000)..........(200000)..........(300000)..........(400000)..........(500000)..........(600000)..........(700000)..........(800000)..........(900000)..........(1000000)..........(1100000)..........(1200000)..........(1300000)..........(1400000)..........(1500000)..........(1600000)..........(1700000)..........(1800000)..........(1900000)..........(2000000)..........(2100000)..........(2200000)..........(2300000)..........(2400000)..........(2500000)........
+# Input sentences: 2582669  Output sentences:  2112905
 
 
 for l in $src $tgt; do
@@ -82,7 +84,7 @@ done
 
 echo "pre-processing valid/test data..."
 for l in $src $tgt; do
-    f=test.tags.$lang.$l
+    f=valid.$l
     tok=test.tags.$lang.tok.$l
 
     cat $orig/$lang/$f | \
@@ -105,13 +107,13 @@ done
 
 echo "creating train, valid, test..."
 for l in $src $tgt; do
-    awk '{if (NR%23 == 0)  print $0; }' $tmp/train.tags.en-vi.$l > $tmp/valid.$l
-    awk '{if (NR%23 != 0)  print $0; }' $tmp/train.tags.en-vi.$l > $tmp/train.$l
-    cat $tmp/test.tags.en-vi.$l > $tmp/test.$l
+    awk '{if (NR%23 == 0)  print $0; }' $tmp/train.tags.$lang.$l > $tmp/valid.$l
+    awk '{if (NR%23 != 0)  print $0; }' $tmp/train.tags.$lang.$l > $tmp/train.$l
+    cat $tmp/test.tags.$lang.$l > $tmp/test.$l
 done
 # creating train, valid, test...
 
-TRAIN=$tmp/train.en-vi
+TRAIN=$tmp/train.$lang
 BPE_CODE=$prep/code
 rm -f $TRAIN
 for l in $src $tgt; do
@@ -146,19 +148,19 @@ TEXT=${prefix}tokenized \
     --trainpref $TEXT/train --validpref $TEXT/valid --testpref $TEXT/test \
     --destdir ${prefix}data-bin/tokenized.en-vi \
     --workers 20
-# 2020-11-10 13:04:38 | INFO | fairseq_cli.preprocess | [en] Dictionary: 7040 types
-# 2020-11-10 13:04:39 | INFO | fairseq_cli.preprocess | [en] tokenized.en-vi/train.en: 22766 sents, 301590 tokens, 0.0% replaced by <unk>
-# 2020-11-10 13:04:39 | INFO | fairseq_cli.preprocess | [en] Dictionary: 7040 types
-# 2020-11-10 13:04:39 | INFO | fairseq_cli.preprocess | [en] tokenized.en-vi/valid.en: 1034 sents, 13991 tokens, 0.05% replaced by <unk>
-# 2020-11-10 13:04:39 | INFO | fairseq_cli.preprocess | [en] Dictionary: 7040 types
-# 2020-11-10 13:04:40 | INFO | fairseq_cli.preprocess | [en] tokenized.en-vi/test.en: 25004 sents, 339444 tokens, 0.0533% replaced by <unk>
-# 2020-11-10 13:04:40 | INFO | fairseq_cli.preprocess | [vi] Dictionary: 4056 types
-# 2020-11-10 13:04:41 | INFO | fairseq_cli.preprocess | [vi] tokenized.en-vi/train.vi: 22766 sents, 323011 tokens, 0.0% replaced by <unk>
-# 2020-11-10 13:04:41 | INFO | fairseq_cli.preprocess | [vi] Dictionary: 4056 types
-# 2020-11-10 13:04:41 | INFO | fairseq_cli.preprocess | [vi] tokenized.en-vi/valid.vi: 1034 sents, 14876 tokens, 0.0807% replaced by <unk>
-# 2020-11-10 13:04:41 | INFO | fairseq_cli.preprocess | [vi] Dictionary: 4056 types
-# 2020-11-10 13:04:42 | INFO | fairseq_cli.preprocess | [vi] tokenized.en-vi/test.vi: 25004 sents, 377735 tokens, 0.217% replaced by <unk>
-# 2020-11-10 13:04:42 | INFO | fairseq_cli.preprocess | Wrote preprocessed data to data-bin/tokenized.en-vi
+# 2020-11-26 18:45:01 | INFO | fairseq_cli.preprocess | [en] Dictionary: 8768 types
+# 2020-11-26 18:46:01 | INFO | fairseq_cli.preprocess | [en] v3-1M/en-vi-tokenized/train.en: 2021040 sents, 22744712 tokens, 0.0% replaced by <unk>
+# 2020-11-26 18:46:01 | INFO | fairseq_cli.preprocess | [en] Dictionary: 8768 types
+# 2020-11-26 18:46:05 | INFO | fairseq_cli.preprocess | [en] v3-1M/en-vi-tokenized/valid.en: 91865 sents, 1033660 tokens, 0.00193% replaced by <unk>
+# 2020-11-26 18:46:05 | INFO | fairseq_cli.preprocess | [en] Dictionary: 8768 types
+# 2020-11-26 18:46:05 | INFO | fairseq_cli.preprocess | [en] v3-1M/en-vi-tokenized/test.en: 10000 sents, 108413 tokens, 0.00277% replaced by <unk>
+# 2020-11-26 18:46:05 | INFO | fairseq_cli.preprocess | [vi] Dictionary: 11008 types
+# 2020-11-26 18:47:30 | INFO | fairseq_cli.preprocess | [vi] v3-1M/en-vi-tokenized/train.vi: 2021040 sents, 23167052 tokens, 0.0% replaced by <unk>
+# 2020-11-26 18:47:30 | INFO | fairseq_cli.preprocess | [vi] Dictionary: 11008 types
+# 2020-11-26 18:47:34 | INFO | fairseq_cli.preprocess | [vi] v3-1M/en-vi-tokenized/valid.vi: 91865 sents, 1053776 tokens, 0.00209% replaced by <unk>
+# 2020-11-26 18:47:34 | INFO | fairseq_cli.preprocess | [vi] Dictionary: 11008 types
+# 2020-11-26 18:47:35 | INFO | fairseq_cli.preprocess | [vi] v3-1M/en-vi-tokenized/test.vi: 10000 sents, 113869 tokens, 0.0193% replaced by <unk>
+# 2020-11-26 18:47:35 | INFO | fairseq_cli.preprocess | Wrote preprocessed data to v3-1M/en-vi-data-bin/tokenized.en-vi
 
 # data-bin
 # └── tokenized.en-vi
@@ -182,21 +184,24 @@ TEXT=${prefix}tokenized \
 
 # TRAINING
 
-# CUDA_VISIBLE_DEVICES=0 fairseq-train 30k-en-vi-data-bin/tokenized.en-vi \
-#     --arch transformer --share-decoder-input-output-embed \
-#     --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
-#     --lr 5e-4 --lr-scheduler inverse_sqrt --warmup-updates 400 \
-#     --dropout 0.3 --weight-decay 0.0001 \
-#     --criterion label_smoothed_cross_entropy --label-smoothing 0.1 \
-#     --max-tokens 4096 \
-#     --eval-bleu \
-#     --eval-bleu-args '{"beam": 5, "max_len_a": 1.2, "max_len_b": 10}' \
-#     --eval-bleu-detok moses \
-#     --eval-bleu-remove-bpe \
-#     --eval-bleu-print-samples \
-#     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
-#     --save-dir 30k-en-vi-checkpoints\
-#     --max-epoch 1
+CUDA_VISIBLE_DEVICES=0 fairseq-train v3-1M/en-vi-data-bin/tokenized.en-vi/\
+    --arch transformer --share-decoder-input-output-embed \
+    --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
+    --lr 5e-4 --lr-scheduler inverse_sqrt --warmup-updates 400 \
+    --dropout 0.3 --weight-decay 0.0001 \
+    --criterion label_smoothed_cross_entropy --label-smoothing 0.1 \
+    --max-tokens 4096 \
+    --eval-bleu \
+    --eval-bleu-args '{"beam": 5, "max_len_a": 1.2, "max_len_b": 10}' \
+    --eval-bleu-detok moses \
+    --eval-bleu-remove-bpe \
+    --eval-bleu-print-samples \
+    --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
+    --save-dir v3-1M/en-vi-checkpoints\
+    --max-epoch 1
+
+# 2020-11-27 08:17:40 | INFO | train | epoch 001 | loss 9.042 | nll_loss 8.29 | ppl 313.1 | wps 508.8 | ups 0.13 | wpb 3771.3 | bsz 329 | num_updates 6143 | lr 0.000127588 | gnorm 1.451 | train_wall 39499 | wall 45535
+# 2020-11-27 08:17:40 | INFO | fairseq_cli.train | done training in 45531.9 seconds
 
 
 # --arch

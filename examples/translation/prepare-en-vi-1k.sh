@@ -15,17 +15,15 @@ CLEAN=$SCRIPTS/training/clean-corpus-n.perl
 BPEROOT=subword-nmt/subword_nmt
 BPE_TOKENS=10000
 
-URL=https://github.com/hoangtrungchinh/clc_data/raw/master/en-vi-30k.zip
-GZ=en-vi-30k.zip
+URL=https://github.com/hoangtrungchinh/clc_data/raw/master/en-vi.zip
+GZ=en-vi.zip
 
 src=en
 tgt=vi
 lang=en-vi
-
-prefix=30k-en-vi-
-prep=${prefix}tokenized
-orig=${prefix}orig
+prep=tokenized.en-vi
 tmp=$prep/tmp
+orig=orig
 
 mkdir -p $orig $tmp $prep
 
@@ -141,10 +139,10 @@ done
 
 
 # Preprocess/binarize the data
-TEXT=${prefix}tokenized \
+TEXT=tokenized.en-vi \
 && fairseq-preprocess --source-lang en --target-lang vi \
     --trainpref $TEXT/train --validpref $TEXT/valid --testpref $TEXT/test \
-    --destdir ${prefix}data-bin/tokenized.en-vi \
+    --destdir data-bin/tokenized.en-vi \
     --workers 20
 # 2020-11-10 13:04:38 | INFO | fairseq_cli.preprocess | [en] Dictionary: 7040 types
 # 2020-11-10 13:04:39 | INFO | fairseq_cli.preprocess | [en] tokenized.en-vi/train.en: 22766 sents, 301590 tokens, 0.0% replaced by <unk>
@@ -182,8 +180,8 @@ TEXT=${prefix}tokenized \
 
 # TRAINING
 
-# CUDA_VISIBLE_DEVICES=0 fairseq-train 30k-en-vi-data-bin/tokenized.en-vi \
-#     --arch transformer --share-decoder-input-output-embed \
+# CUDA_VISIBLE_DEVICES=0 fairseq-train data-bin/tokenized.en-vi \
+#     --arch transformer_iwslt_de_en --share-decoder-input-output-embed \
 #     --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
 #     --lr 5e-4 --lr-scheduler inverse_sqrt --warmup-updates 400 \
 #     --dropout 0.3 --weight-decay 0.0001 \
@@ -195,8 +193,7 @@ TEXT=${prefix}tokenized \
 #     --eval-bleu-remove-bpe \
 #     --eval-bleu-print-samples \
 #     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
-#     --save-dir 30k-en-vi-checkpoints\
-#     --max-epoch 1
+#     --max-epoch 5
 
 
 # --arch
@@ -222,7 +219,7 @@ TEXT=${prefix}tokenized \
 
 
 
-# fairseq-interactive 30k-en-vi-data-bin/tokenized.en-vi --path checkpoints/checkpoint_best.pt --beam 5
+# fairseq-interactive data-bin/tokenized.en-vi --path checkpoints/checkpoint_best.pt --beam 5
 # ==>
 
 
