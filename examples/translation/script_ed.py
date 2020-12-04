@@ -12,7 +12,7 @@ def main(argv):
   try:
     opts, args = getopt.getopt(argv,"st:o:",["srcfile=","tarfile=","outfile=", "thread="])
   except getopt.GetoptError:
-    print('test.py -src <srcfile> -tar <tarfile> -out <outfile>')
+    print('example: python3 script_ed.py --srcfile train.en --tarfile train.vi --outfile ok.txt --thread 1 ')
     sys.exit(2)
   for opt, arg in opts:
     if opt == '-h':
@@ -60,7 +60,8 @@ def main(argv):
       a_file = open(tarfile)
       for position, line in enumerate(a_file):
         if position == index:
-          return str.strip() + saperate + best_sent.strip()  + saperate + line
+          return str.strip() + saperate + line
+          # return str.strip() + saperate + best_sent.strip()  + saperate + line
 
 
 
@@ -76,7 +77,8 @@ def main(argv):
         a_file = open(tarfile)
         for position, line in enumerate(a_file):
           if position == index:
-            out_file_write.writelines(cnt1.strip() + saperate + best_sent.strip()  + saperate + line)
+            out_file_write.writelines(cnt1.strip() + saperate + line)
+            # out_file_write.writelines(cnt1.strip() + saperate + best_sent.strip()  + saperate + line)
             break
 
     out_file_write.close()
