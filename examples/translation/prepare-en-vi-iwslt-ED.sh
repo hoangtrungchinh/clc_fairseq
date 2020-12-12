@@ -43,15 +43,13 @@ mkdir $lang
 tar -xvf $GZ -C $lang
 cd ..
 
-python clc_fairseq/examples/translation/script_ed.py -i $orig/$lang/train.$src -o $orig/$lang/train2.$src
-cat $orig/$lang/train.$src > $orig/$lang/train.$src.bak
-cat $orig/$lang/train2.$src > $orig/$lang/train.$src
+
 
 
 
 echo "pre-processing train data..."
 for l in $src $tgt; do
-    f=train.$l
+    f=train.$l.dual
     tok=train.tags.$lang.tok.$l
 
     cat $orig/$lang/$f | \
@@ -131,6 +129,10 @@ python3 $BPEROOT/learn_bpe.py -s $BPE_TOKENS < $TRAIN > $BPE_CODE
 # learn_bpe.py on tokenized.en-vi/tmp/train.en-vi...
 
 
+# python clc_fairseq/examples/translation/script_ed.py -i $orig/$lang/train.$src -o $orig/$lang/train2.$src
+# cat $orig/$lang/train.$src > $orig/$lang/train.$src.bak
+# cat $orig/$lang/train2.$src > $orig/$lang/train.$src
+
 for L in $src $tgt; do
     for f in train.$L valid.$L test.$L; do
         echo "apply_bpe.py to ${f}..."
@@ -187,22 +189,22 @@ TEXT=$prefix"tokenized.en-vi" \
 
 
 # TRAINING
-mkdir -p $prefix"checkpoints/fconv_wmt_en_vi"
+# mkdir -p $prefix"checkpoints/fconv_wmt_en_vi"
 
-CUDA_VISIBLE_DEVICES=0 fairseq-train $prefix"data-bin/tokenized.en-vi" \
-    --arch transformer --share-decoder-input-output-embed \
-    --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
-    --lr 5e-4 --lr-scheduler inverse_sqrt --warmup-updates 400 \
-    --dropout 0.3 --weight-decay 0.0001 \
-    --criterion label_smoothed_cross_entropy --label-smoothing 0.1 \
-    --max-tokens 4096 \
-    --eval-bleu \
-    --eval-bleu-args '{"beam": 5, "max_len_a": 1.2, "max_len_b": 10}' \
-    --eval-bleu-detok moses \
-    --eval-bleu-remove-bpe \
-    --eval-bleu-print-samples \
-    --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
-    --save-dir $prefix"checkpoints/fconv_wmt_en_vi"
+# CUDA_VISIBLE_DEVICES=0 fairseq-train $prefix"data-bin/tokenized.en-vi" \
+#     --arch transformer --share-decoder-input-output-embed \
+#     --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
+#     --lr 5e-4 --lr-scheduler inverse_sqrt --warmup-updates 400 \
+#     --dropout 0.3 --weight-decay 0.0001 \
+#     --criterion label_smoothed_cross_entropy --label-smoothing 0.1 \
+#     --max-tokens 4096 \
+#     --eval-bleu \
+#     --eval-bleu-args '{"beam": 5, "max_len_a": 1.2, "max_len_b": 10}' \
+#     --eval-bleu-detok moses \
+#     --eval-bleu-remove-bpe \
+#     --eval-bleu-print-samples \
+#     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
+#     --save-dir $prefix"checkpoints/fconv_wmt_en_vi"
 
     # --max-epoch 1 \
 
