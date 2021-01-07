@@ -2,9 +2,11 @@ import sys, getopt
 import editdistance
 import time
 import concurrent.futures
+import sent2vec
+from sklearn.metrics.pairwise import cosine_similarity
 
 def main(argv):
-  threshold = 0.6
+  threshold = 0.8
   start = time.time()
   srcfile = ''
   tarfile = ''
@@ -13,7 +15,7 @@ def main(argv):
   try:
     opts, args = getopt.getopt(argv,"st:o:",["srcfile=","tarfile=","outfile="])
   except getopt.GetoptError:
-    print('example: python3 script_FM.py --srcfile train500.en --tarfile train500.vi --outfile train_ok')
+    print('example: python3 script_FM.py --srcfile train500.en --tarfile train500.vi --outfile train_ok --binfile model.bin')
     sys.exit(2)
   for opt, arg in opts:
     if opt == '-h':
@@ -25,28 +27,35 @@ def main(argv):
       tarfile = arg
     elif opt in ("-o", "--outfile"):
       outfile = arg
+    elif opt in ("-b", "--binfile"):
+      binfile = arg
 
   print('=== Starting Calculate editdistance')
   print('source file is ', srcfile)
   print('target file is ', tarfile)
   print('output file is ', outfile)
+  print('bin file is ', binfile)
 
   # IMPORT TO ARRAY
   lst_srcfile = open(srcfile, "r").readlines()
   lst_tarfile = open(tarfile, "r").readlines()
 
+  model = sent2vec.Sent2vecModel()
+  model.load_model(binfile)
+
   def best_simi(str):
-    dis = 0
+    dis = -1
     index = 0
     best_sent = ""
+    str_vector = model.embed_sentence(str)
     for i in range(len(lst_srcfile)):
-      str_file = lst_srcfile[i]
-      ed  = editdistance.eval(str, str_file)
-      if ed !=0:
-        tmp = 1-(ed/max(len(str), len(str_file)))
-        if tmp > dis:
-          dis = tmp
-          best_sent = str_file
+      tar_vector = model.embed_sentence(lst_srcfile[i])
+
+      ed  = cosine_similarity(str_vector, tar_vector)[0][0]
+      if ed !=1:
+        if ed > dis:
+          dis = ed
+          best_sent = lst_srcfile[i]
           index = i
     return best_sent, index , dis
 
