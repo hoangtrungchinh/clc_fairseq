@@ -13,7 +13,7 @@ def main(argv):
   outfile = ''
   saperate = " || "
   try:
-    opts, args = getopt.getopt(argv,"st:o:",["srcfile=","tarfile=","outfile="])
+    opts, args = getopt.getopt(argv,"st:o:",["srcfile=","tarfile=","outfile=","binfile="])
   except getopt.GetoptError:
     print('example: python3 script_FM.py --srcfile train500.en --tarfile train500.vi --outfile train_ok --binfile model.bin')
     sys.exit(2)
